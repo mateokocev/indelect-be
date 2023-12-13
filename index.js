@@ -2,12 +2,15 @@
 // SETUP ZA EXPRESS //
 // **************** //
 import express from "express";
+import cors from "cors";
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const router = express.Router();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors({ exposedHeaders: ['authenticated-user'] }))
 app.use('/api', router);
 
 // *************************** //
@@ -25,30 +28,32 @@ mongoose
   console.log('Loaded .env file with MONGO_URI:', process.env.MONGO_URI);
 
   import User from "./models/users"
+
 // ********************** //
 //   OVDJE POČINJU RUTE   //
 // ********************** //
 
+// ---------------------------------------------------------------------------------------------- //
 
-router.post("/user/create", async (req, res) => {
+// ************************* //
+//   REGISTER I LOGIN RUTE   //
+// ************************* //
 
-    const {username, email, password} = req.body;
+router.route("/register")
+    .post(async (req, res) => {
+        try {
+            const userData = req.body;
+            const result = await methods.createUser(userData.name, userData.email, userData.password);
+            res.setHeader('authenticated-user', result.email);
+            res.status(200).json(result);
+            } 
 
-    try {
+        catch (error) {
+            res.status(500).json({ error: 'Registration failed' });
+            }
+    });
 
-        const newUser = new User({username, email, password});
-        await newUser.save();
-        console.log("User succesfully created with: ", newUser);
 
-        if(newUser){ res.status(200).json({msg: "User Added!"}); }
-    } 
-    catch (error) {
-
-        console.log("User error: ", error);
-        res.status(400).json({msg: "Invalid"});
-    }
-
-});
 
 
 // ********************* //

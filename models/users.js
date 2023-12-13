@@ -17,16 +17,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         minlength: 8,
         required: true,
-    },
-    isAdmin: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
-    isEditor: {
-        type: Boolean,
-        required: true,
-        default: false
     }
 
 });
