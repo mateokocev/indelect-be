@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import User from "./models/Users";
+import User from "../models/Users.js";
 import bcrypt from "bcrypt";
 
 // ---------------- //
@@ -40,7 +40,8 @@ async function checkCredentials(email, password) {
 
 
 
-export const methods = {
+const methods = {
     createUser,
     checkCredentials,
 };
+export default methods;

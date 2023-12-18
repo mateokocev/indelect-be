@@ -4,7 +4,9 @@
 
 import express from "express";
 import cors from "cors";
-const jwt = require('jsonwebtoken');
+import methods from "./handlers/userHandlers.js";
+import User from "./models/Users.js";
+import jwt from "jsonwebtoken";
 
 const app = express();
 const router = express.Router();
@@ -28,7 +30,7 @@ mongoose
 
   console.log('Loaded .env file with MONGO_URI:', process.env.MONGO_URI);
 
-const User = require("./models/Users");
+
 
 // ********************** //
 //   OVDJE POČINJU RUTE   //
@@ -39,7 +41,7 @@ const User = require("./models/Users");
 // ************************* //
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
-import { methods } from "./handlers/userHandlers";
+
 
 router.route("/register")
     .post(async (req, res) => {
