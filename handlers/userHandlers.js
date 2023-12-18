@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
-import User from "./models/users";
+import User from "./models/Users";
 import bcrypt from "bcrypt";
+
+// ---------------- //
+//   REGISTRACIJA   //
+// ---------------- //
 
 function _excludeProperties(obj, excludedProps) {
     const { [excludedProps]: _, ...result } = obj;
@@ -13,11 +17,30 @@ async function _generatePassword(password) {
 
 async function createUser(name, email, password) {
     const hashPassword = await _generatePassword(password);
-    const user = new User(name, email, hashPassword);
+    const user = new User({username: name, email: email, password: hashPassword});
     user.save();
-    return _excludeProperties(user, 'password');
+    return _excludeProperties(user.toObject(), ['password']);
 }
+
+// --------- //
+//   LOGIN   //
+// --------- //
+
+async function _comparePasswords(password, hashPassword) {
+    return bcrypt.compareSync(password, hashPassword); 
+}
+
+async function checkCredentials(email, password) {
+    const user = User.findOne({email: email});
+    if(!user) {
+        return null;
+    }
+    return _comparePasswords(password, user.password) ? _excludeProperties(user, ['password']) : null; 
+}
+
+
 
 export const methods = {
     createUser,
-}
+    checkCredentials,
+};

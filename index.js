@@ -1,6 +1,7 @@
 // **************** //
 // SETUP ZA EXPRESS //
 // **************** //
+
 import express from "express";
 import cors from "cors";
 const jwt = require('jsonwebtoken');
@@ -27,7 +28,7 @@ mongoose
 
   console.log('Loaded .env file with MONGO_URI:', process.env.MONGO_URI);
 
-  import User from "./models/users"
+const User = require("./models/Users");
 
 // ********************** //
 //   OVDJE POČINJU RUTE   //
@@ -38,27 +39,49 @@ mongoose
 // ************************* //
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
+import { methods } from "./handlers/userHandlers";
 
 router.route("/register")
     .post(async (req, res) => {
         try {
             const userData = req.body;
-            const result = await methods.createUser(userData.name, userData.email, userData.password);
-            res.setHeader('authenticated-user', result.email);
-            res.status(200).json(result);
-            } 
+            const findUser = User.findOne({username: userData.username} || {email: userData.email});
 
+            if(findUser){
+                const result = await methods.createUser(userData.username, userData.email, userData.password);
+
+                res.setHeader('authenticated-user', result.email);
+                res.status(200).json(result);
+            }
+            else{
+                res.status(500).json({ error: 'User exists' });
+            }} 
         catch (error) {
             res.status(500).json({ error: 'Registration failed' });
             }
     });
 
-
+router.route("/login")
+    .post(async (req, res) => {
+        try {
+            const userData = req.body;
+            const user = await methods.checkCredentials(userData.email, userData.password);
+            if (user) {
+                const token = jwt.sign({email: User.email}, JWT_SECRET_KEY);  //ovaj jwt_secret_key treba namjestiti
+                res.status(200).json({token});
+            }
+            else{
+                return res.status(401).json({ error: 'Authentication failed' });
+            }}
+        catch(error) {
+            res.status(500).json({ error: 'Authentication failed' });
+        }
+    });
 
 
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
 // ********************* //
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`);
 });
