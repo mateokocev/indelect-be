@@ -21,7 +21,7 @@ app.use('/api', router);
 // *************************** //
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config({path: __dirname + "/.env"})
+dotenv.config({path: `./.env`})
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -80,6 +80,40 @@ router.route("/login")
         }
     });
 
+// ********************* //
+// OVDJE ZAVRŠAVAJU RUTE //
+// ********************* //
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 router.route('/control/museum/add')
   .post(async (req, res) => {
     res.json({ message: 'Museum added successfully' });
@@ -144,12 +178,4 @@ router.route('/ticket/purchase')
   .get(async (req, res) => {
     res.json({ message: 'Ticket QR code generated successfully', qrCode });
 });
-
-
-
-// ********************* //
-// OVDJE ZAVRŠAVAJU RUTE //
-// ********************* //
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+*/
