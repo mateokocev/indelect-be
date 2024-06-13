@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import User from "../models/Users.js";
+import User from "../models/users.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // ---------------- //
 //   REGISTRACIJA   //

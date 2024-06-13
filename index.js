@@ -5,7 +5,7 @@
 import express from "express";
 import cors from "cors";
 import methods from "./handlers/userHandlers.js";
-import User from "./models/Users.js";
+import User from "./models/users.js";
 import jwt from "jsonwebtoken";
 
 const app = express();
@@ -42,22 +42,19 @@ mongoose
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
 
-
 router.route("/register")
     .post(async (req, res) => {
         try {
             const userData = req.body;
             const findUser = User.findOne({username: userData.username} || {email: userData.email});
 
-            if(findUser){
+            if(!findUser){
                 const result = await methods.createUser(userData.username, userData.email, userData.password);
-
-                res.setHeader('authenticated-user', result.email);
                 res.status(200).json(result);
             }
             else{
                 res.status(500).json({ error: 'User exists' });
-            }} 
+            }}    
         catch (error) {
             res.status(500).json({ error: 'Registration failed' });
             }
@@ -69,7 +66,7 @@ router.route("/login")
             const userData = req.body;
             const user = await methods.checkCredentials(userData.email, userData.password);
             if (user) {
-                const token = jwt.sign({email: User.email}, JWT_SECRET_KEY);  //ovaj jwt_secret_key treba namjestiti
+                const token = jwt.sign({email: User.email}, JWT_SECRET_KEY);
                 res.status(200).json({token});
             }
             else{
