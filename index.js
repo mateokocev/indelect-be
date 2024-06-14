@@ -47,7 +47,7 @@ router.route("/register")
         try {
 
             const userData = req.body;
-            const findUser = User.findOne({username: userData.username} || {email: userData.email});
+            const findUser = await User.findOne({$or: [{ username: userData.username },{ email: userData.email }]});
 
             if(!findUser){
                 const result = await methods.createUser(userData.username, userData.email, userData.password);
@@ -58,8 +58,7 @@ router.route("/register")
             }}
 
         catch (error) {
-
-            res.status(500).json({ error: 'Registration failed' });
+            res.status(500).json({ error: 'Registration failed. Womp Womp' });
             }
     });
 
@@ -68,6 +67,7 @@ router.route("/register")
         try {
             const userData = req.body;
             const user = await methods.checkCredentials(userData.email, userData.password);
+            console.log("received request for login");
             if (user) {
                 const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY);
                 res.status(200).json({ token });

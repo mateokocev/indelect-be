@@ -18,7 +18,7 @@ async function _generatePassword(password) {
 
 async function createUser(name, email, password) {
     const hashPassword = await _generatePassword(password);
-    const user = new User({username: name, email: email, password: hashPassword, isAdmin});
+    const user = new User({username: name, email: email, password: hashPassword, isAdmin: false});
     await user.save();
     return _excludeProperties(user.toObject(), ['password']);
 }
@@ -32,7 +32,7 @@ async function _comparePasswords(password, hashPassword) {
 }
 
 async function checkCredentials(email, password) {
-    const user = User.findOne({email: email});
+    const user = await User.findOne({email: email});
     if(!user) {
         return null;
     }
