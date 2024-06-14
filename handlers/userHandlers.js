@@ -18,8 +18,8 @@ async function _generatePassword(password) {
 
 async function createUser(name, email, password) {
     const hashPassword = await _generatePassword(password);
-    const user = new User({username: name, email: email, password: hashPassword});
-    user.save();
+    const user = new User({username: name, email: email, password: hashPassword, isAdmin});
+    await user.save();
     return _excludeProperties(user.toObject(), ['password']);
 }
 
