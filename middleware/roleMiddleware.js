@@ -4,3 +4,5 @@ const checkAdmin = (req, res, next) => {
     }
     next();
 };
+
+export default checkAdmin;
