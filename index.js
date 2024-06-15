@@ -71,7 +71,6 @@ router.route("/login").post(async (req, res) => {
     );
     console.log("received request for login");
     if (user) {
-      console.log("string test", user);
       console.log(user.email, user.isAdmin);
       const token = jwt.sign(
         { email: user.email, isAdmin: user.isAdmin },
