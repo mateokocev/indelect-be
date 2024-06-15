@@ -8,7 +8,11 @@ import jwt from "jsonwebtoken";
 // ---------------- //
 
 function _excludeProperties(obj, excludedProps) {
-    const { [excludedProps]: _, ...result } = obj;
+    let result = { ...obj };
+    excludedProps.forEach(prop => {
+        const { [prop]: _, ...rest } = result;
+        result = rest;
+    });
     return result;
 }
 
@@ -36,11 +40,12 @@ async function checkCredentials(email, password) {
     if(!user) {
         return null;
     }
-    return _comparePasswords(password, user.password) ? _excludeProperties(user, ['password']) : null; 
+    return _comparePasswords(password, user.password) ? _excludeProperties(user.toObject(), ['password']) : null; 
 }
 
-
-
+////////////////
+//   EXPORT   //
+////////////////
 const methods = {
     createUser,
     checkCredentials,

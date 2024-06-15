@@ -13,24 +13,22 @@ const router = express.Router();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors({ exposedHeaders: ['authenticated-user'] }))
-app.use('/api', router);
+app.use(cors({ exposedHeaders: ["authenticated-user"] }));
+app.use("/api", router);
 
 // *************************** //
 // SETUP ZA MONGODB / MONGOOSE //
 // *************************** //
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-dotenv.config({path: `./.env`})
+dotenv.config({ path: `./.env` });
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected"))
   .catch((error) => console.log(error));
 
-  console.log('Loaded .env file with MONGO_URI:', process.env.MONGO_URI);
-
-
+console.log("Loaded .env file with MONGO_URI:", process.env.MONGO_URI);
 
 // ********************** //
 //   OVDJE POČINJU RUTE   //
@@ -42,75 +40,58 @@ mongoose
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
 
-router.route("/register")
-    .post(async (req, res) => {
-        try {
-
-            const userData = req.body;
-            const findUser = await User.findOne({$or: [{ username: userData.username },{ email: userData.email }]});
-
-            if(!findUser){
-                const result = await methods.createUser(userData.username, userData.email, userData.password);
-                res.status(200).json(result);
-            }
-            else{
-                res.status(500).json({ error: 'User exists' });
-            }}
-
-        catch (error) {
-            res.status(500).json({ error: 'Registration failed. Womp Womp' });
-            }
+router.route("/register").post(async (req, res) => {
+  try {
+    const userData = req.body;
+    const findUser = await User.findOne({
+      $or: [{ username: userData.username }, { email: userData.email }],
     });
 
-    router.route("/login")
-    .post(async (req, res) => {
-        try {
-            const userData = req.body;
-            const user = await methods.checkCredentials(userData.email, userData.password);
-            console.log("received request for login");
-            if (user) {
-                const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET_KEY);
-                res.status(200).json({ token });
-            } else {
-                return res.status(401).json({ error: 'Authentication failed' });
-            }
-        } catch (error) {
-            res.status(500).json({ error: 'Authentication failed' });
-        }
+    if (!findUser) {
+      const result = await methods.createUser(
+        userData.username,
+        userData.email,
+        userData.password
+      );
+      res.status(200).json(result);
+    } else {
+      res.status(500).json({ error: "User exists" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Registration failed. Womp Womp" });
+  }
+});
+
+router.route("/login").post(async (req, res) => {
+  try {
+    const userData = req.body;
+    const user = await methods.checkCredentials(
+      userData.email,
+      userData.password
+    );
+    console.log("received request for login");
+    if (user) {
+      console.log("string test", user);
+      console.log(user.email, user.isAdmin);
+      const token = jwt.sign(
+        { email: user.email, isAdmin: user.isAdmin },
+        process.env.JWT_SECRET_KEY
+      );
+      res.status(200).json({ token, isAdmin: user.isAdmin });
+    } else {
+      return res.status(401).json({ error: "Authentication failed" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Authentication failed" });
+  }
 });
 
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
 // ********************* //
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+  console.log(`Example app listening on port ${port}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
 router.route('/control/museum/add')
