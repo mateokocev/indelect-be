@@ -69,6 +69,7 @@ router.route("/login").post(async (req, res) => {
       userData.email,
       userData.password
     );
+    console.log(user);
     console.log("received request for login");
     if (user) {
       console.log(user.email, user.isAdmin);
