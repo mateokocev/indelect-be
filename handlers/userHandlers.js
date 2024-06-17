@@ -45,9 +45,10 @@ async function checkCredentials(email, password) {
   if (!user) {
     return null;
   }
-  return _comparePasswords(password, user.password)
-    ? _excludeProperties(user.toObject(), ["password"])
-    : null;
+  const isMatch = await _comparePasswords(password, user.password);
+  console.log(`Password match: ${isMatch}`);
+  
+  return isMatch ? _excludeProperties(user.toObject(), ["password"]) : null;
 }
 
 ////////////////
