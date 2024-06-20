@@ -6,11 +6,13 @@ import express from "express";
 import cors from "cors";
 import methods from "./handlers/userHandlers.js";
 import User from "./models/users.js";
+import Ticket from "./models/ticket.js";
 import jwt from "jsonwebtoken";
+import qrcode from "qrcode";
 
 const app = express();
 const router = express.Router();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3030;
 
 app.use(express.json());
 app.use(cors({ exposedHeaders: ["authenticated-user"] }));
@@ -39,6 +41,8 @@ console.log("Loaded .env file with MONGO_URI:", process.env.MONGO_URI);
 // ************************* //
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
+
+
 
 router.route("/register").post(async (req, res) => {
   try {
@@ -86,12 +90,72 @@ router.route("/login").post(async (req, res) => {
   }
 });
 
+
+router.route('/ticket/getAllTickets').get(async (req, res) => {
+  const tickets = await Ticket.find({});
+  res.json(tickets);
+});
+
+
+
+router.route('/ticket/getQrCode').get(async (req, res) => {
+  req = mail
+
+  res.json(generateQRCodesForAllTickets(mail));
+});
+
+router.route('/ticket/Scan/:id').get(async (req, res) => {
+  
+variajbla = id
+// ako postoji id return true
+
+// ako ne postoji id return false
+
+  res.json(generateQRCodesForAllTickets(mail));
+});
+
+
+
+const generateUniqueQRCode = async (ticket, email) => {
+  try {
+    const qrData = {
+      MuseumName: ticket.MuseumName,
+      MuseumDetails: ticket.MuseumDetails,
+      Price: ticket.Price,
+      Email: email
+    };
+    const qrCodeData = await qrcode.toDataURL(JSON.stringify("https://www.pornhub.com/"));
+    console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
+  } catch (error) {
+    console.error("Error generating QR code:", error);
+  }
+};
+
+const generateQRCodesForAllTickets = async (email,musemName) => {
+  try {
+    const tickets = await Ticket.find({});
+    for (const ticket of tickets) {
+      await generateUniqueQRCode(ticket, email);
+    }
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+  }
+};
+
+
+
+// Replace with the user's email
+const userEmail = "user@example.com";
+
+// Call the function to fetch tickets and generate unique QR codes
+generateQRCodesForAllTickets(userEmail);
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
 // ********************* //
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
 
 /*
 router.route('/control/museum/add')
@@ -159,3 +223,5 @@ router.route('/ticket/purchase')
     res.json({ message: 'Ticket QR code generated successfully', qrCode });
 });
 */
+
+
