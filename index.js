@@ -5,7 +5,9 @@
 import express from "express";
 import cors from "cors";
 import methods from "./handlers/userHandlers.js";
+import methodsEx from "./handlers/exhibitHandlers.js";
 import User from "./models/users.js";
+import Exhibit from "./models/exhibits.js";
 import jwt from "jsonwebtoken";
 
 const app = express();
@@ -83,6 +85,29 @@ router.route("/login").post(async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Authentication failed" });
+  }
+});
+
+router.route("/exhibit/add").post(async (req, res) => {
+  try {
+    const exhibitData = req.body;
+    const findExhibit = await Exhibit.findOne({
+      exhibitName: exhibitData.name,
+    });
+
+    if (!findExhibit) {
+      const exhibit = await methodsEx.createExhibit(
+        exhibitData.name,
+        exhibitData.description,
+        exhibitData.images,
+        exhibitData.isDisplayed
+      );
+      res.status(200).json(exhibit);
+    } else {
+      res.status(500).json({ error: "Exhibit exists" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Couldn't add exhibit" });
   }
 });
 
