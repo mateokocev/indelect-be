@@ -21,7 +21,7 @@ async function createExhibit(
   isDisplayed = true
 ) {
   const exhibit = new Exhibit({
-    name: name,
+    exhibitName: name,
     description: description,
     images: images,
     isDisplayed: isDisplayed,
@@ -73,11 +73,11 @@ async function getExhibitById(id) {
 //   EXPORT   //
 ////////////////
 
-const methods = {
+const methodsEx = {
   createExhibit,
   updateExhibit,
   getAllExhibits,
   getExhibitById,
   deleteExhibitById,
 };
-export default methods;
+export default methodsEx;

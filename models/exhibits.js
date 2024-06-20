@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const exhibitSchema = new mongoose.Schema({
 
-    name: {
+    exhibitName: {
         type: String,
         required: true,
         unique: true
