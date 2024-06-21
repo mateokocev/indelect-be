@@ -3,3 +3,4 @@
 - npm install jsonwebtoken
 - npm i cors
 - npm i bcrypt
+- npm i body-parser

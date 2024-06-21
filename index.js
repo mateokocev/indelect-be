@@ -11,14 +11,19 @@ import Ticket from "./models/ticket.js";
 import Exhibit from "./models/exhibits.js";
 import jwt from "jsonwebtoken";
 import qrcode from "qrcode";
+import bodyParser from "body-parser";
 
 const app = express();
 const router = express.Router();
-const port = process.env.PORT || 3030;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors());
 app.use(cors({ exposedHeaders: ["authenticated-user"] }));
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
 app.use("/api", router);
+
 
 // *************************** //
 // SETUP ZA MONGODB / MONGOOSE //
@@ -59,12 +64,12 @@ router.route("/register").post(async (req, res) => {
         userData.email,
         userData.password
       );
-      res.status(200).json(result);
+      res.status(201).json(result);
     } else {
       res.status(500).json({ error: "User exists" });
     }
   } catch (error) {
-    res.status(500).json({ error: "Registration failed. Womp Womp" });
+    res.status(500).json({ error: "Registration failed." });
   }
 });
 
@@ -126,8 +131,8 @@ const generateUniqueQRCode = async (ticket, email) => {
       Price: ticket.Price,
       Email: email
     };
-    const qrCodeData = await qrcode.toDataURL(JSON.stringify("https://www.pornhub.com/"));
-    console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
+    const qrCodeData = await qrcode.toDataURL(JSON.stringify("google.com"));
+    // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
   } catch (error) {
     console.error("Error generating QR code:", error);
   }
@@ -144,18 +149,18 @@ const generateQRCodesForAllTickets = async (email,musemName) => {
   }
 };
 
-
-
 // Replace with the user's email
 const userEmail = "user@example.com";
 
 // Call the function to fetch tickets and generate unique QR codes
 generateQRCodesForAllTickets(userEmail);
+
+
 router.route("/exhibit/add").post(async (req, res) => {
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
-      exhibitName: exhibitData.name,
+      exhibitName: exhibitData.name
     });
 
     if (!findExhibit) {

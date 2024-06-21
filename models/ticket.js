@@ -13,16 +13,12 @@ const ticketSchema = new mongoose.Schema({
         type:String,
         require:true,
         unique:true
-
-
     },
 
     Price:{
         type: Number,
         require:true,
         unique:true
-
-
     },
 });
 
