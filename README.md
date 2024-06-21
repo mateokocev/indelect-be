@@ -4,3 +4,4 @@
 - npm i cors
 - npm i bcrypt
 - npm i body-parser
+- u node modules nadji folder body parser

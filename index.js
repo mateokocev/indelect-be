@@ -157,15 +157,16 @@ generateQRCodesForAllTickets(userEmail);
 
 
 router.route("/exhibit/add").post(async (req, res) => {
+  console.log("kore je rekao da zeli jedan konzol log da dibagujemo po srpski");
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
-      exhibitName: exhibitData.name
+      exhibitName: exhibitData.exhibitName
     });
 
     if (!findExhibit) {
       const exhibit = await methodsEx.createExhibit(
-        exhibitData.name,
+        exhibitData.exhibitName,
         exhibitData.description,
         exhibitData.images,
         exhibitData.isDisplayed
