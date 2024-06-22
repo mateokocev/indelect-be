@@ -20,10 +20,9 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 app.use(cors({ exposedHeaders: ["authenticated-user"] }));
-app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
+app.use(bodyParser.json({ limit: "20mb" }));
+app.use(bodyParser.urlencoded({ limit: "20mb", extended: true }));
 app.use("/api", router);
-
 
 // *************************** //
 // SETUP ZA MONGODB / MONGOOSE //
@@ -48,8 +47,6 @@ console.log("Loaded .env file with MONGO_URI:", process.env.MONGO_URI);
 // ************************* //
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
-
-
 
 router.route("/register").post(async (req, res) => {
   try {
@@ -97,31 +94,25 @@ router.route("/login").post(async (req, res) => {
   }
 });
 
-
-router.route('/ticket/getAllTickets').get(async (req, res) => {
+router.route("/ticket/getAllTickets").get(async (req, res) => {
   const tickets = await Ticket.find({});
   res.json(tickets);
 });
 
-
-
-router.route('/ticket/getQrCode').get(async (req, res) => {
-  req = mail
+router.route("/ticket/getQrCode").get(async (req, res) => {
+  req = mail;
 
   res.json(generateQRCodesForAllTickets(mail));
 });
 
-router.route('/ticket/Scan/:id').get(async (req, res) => {
-  
-variajbla = id
-// ako postoji id return true
+router.route("/ticket/Scan/:id").get(async (req, res) => {
+  variajbla = id;
+  // ako postoji id return true
 
-// ako ne postoji id return false
+  // ako ne postoji id return false
 
   res.json(generateQRCodesForAllTickets(mail));
 });
-
-
 
 const generateUniqueQRCode = async (ticket, email) => {
   try {
@@ -129,7 +120,7 @@ const generateUniqueQRCode = async (ticket, email) => {
       MuseumName: ticket.MuseumName,
       MuseumDetails: ticket.MuseumDetails,
       Price: ticket.Price,
-      Email: email
+      Email: email,
     };
     const qrCodeData = await qrcode.toDataURL(JSON.stringify("google.com"));
     // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
@@ -138,7 +129,7 @@ const generateUniqueQRCode = async (ticket, email) => {
   }
 };
 
-const generateQRCodesForAllTickets = async (email,musemName) => {
+const generateQRCodesForAllTickets = async (email, musemName) => {
   try {
     const tickets = await Ticket.find({});
     for (const ticket of tickets) {
@@ -155,13 +146,12 @@ const userEmail = "user@example.com";
 // Call the function to fetch tickets and generate unique QR codes
 generateQRCodesForAllTickets(userEmail);
 
-
 router.route("/exhibit/add").post(async (req, res) => {
   console.log("kore je rekao da zeli jedan konzol log da dibagujemo po srpski");
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
-      exhibitName: exhibitData.exhibitName
+      exhibitName: exhibitData.exhibitName,
     });
 
     if (!findExhibit) {
@@ -180,13 +170,21 @@ router.route("/exhibit/add").post(async (req, res) => {
   }
 });
 
+router.route("/exhibit/getall").get(async (req, res) => {
+  try {
+    const exhibits = await methodsEx.getAllExhibits();
+    res.status(200).json(exhibits);
+  } catch (error) {
+    console.log("The error causing the failed fetch: ", error)
+    res.status(500).json({ error: "Failed to fetch exhibits" });
+  }
+});
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
 // ********************* //
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
-
 
 /*
 router.route('/control/museum/add')
@@ -254,5 +252,3 @@ router.route('/ticket/purchase')
     res.json({ message: 'Ticket QR code generated successfully', qrCode });
 });
 */
-
-
