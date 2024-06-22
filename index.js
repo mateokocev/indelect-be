@@ -147,7 +147,7 @@ const userEmail = "user@example.com";
 generateQRCodesForAllTickets(userEmail);
 
 router.route("/exhibit/add").post(async (req, res) => {
-  console.log("kore je rekao da zeli jedan konzol log da dibagujemo po srpski");
+  console.log("poziv za dodavanje");
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
@@ -177,6 +177,19 @@ router.route("/exhibit/getall").get(async (req, res) => {
   } catch (error) {
     console.log("The error causing the failed fetch: ", error)
     res.status(500).json({ error: "Failed to fetch exhibits" });
+  }
+});
+
+router.route("/exhibit/update").post(async (req, res) => {
+  try {
+    const { id, updateData } = req.body;
+    console.log('Updating exhibit with ID:', id);
+    console.log('Update data:', updateData);
+    const updatedExhibit = await methodsEx.updateExhibit(id, updateData);
+    res.status(200).json(updatedExhibit);
+  } catch (error) {
+    console.error('Error updating exhibit:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 // ********************* //
