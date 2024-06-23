@@ -105,21 +105,7 @@ router.route('/ticket/getAllTickets').get(async (req, res) => {
 
 
 
-router.route('/ticket/getQrCode').get(async (req, res) => {
-  req = mail
 
-  res.json(generateQRCodesForAllTickets(mail));
-});
-
-router.route('/ticket/Scan/:id').get(async (req, res) => {
-  
-variajbla = id
-// ako postoji id return true
-
-// ako ne postoji id return false
-
-  res.json(generateQRCodesForAllTickets(mail));
-});
 
 
 
@@ -153,8 +139,24 @@ const generateQRCodesForAllTickets = async (email,musemName) => {
 const userEmail = "user@example.com";
 
 // Call the function to fetch tickets and generate unique QR codes
-generateQRCodesForAllTickets(userEmail);
 
+
+
+router.route('/ticket/getQrCode').get(async (req, res) => {
+  const { mail, museumName } = req.query; // Extract query parameters
+ // res.json(generateQRCodesForAllTickets(mail, museumName));
+ console.log(mail,museumName )
+});
+
+router.route('/ticket/Scan/:id').get(async (req, res) => {
+  
+variajbla = id
+// ako postoji id return true
+
+// ako ne postoji id return false
+
+  res.json(generateQRCodesForAllTickets(mail));
+});
 
 router.route("/exhibit/add").post(async (req, res) => {
   console.log("kore je rekao da zeli jedan konzol log da dibagujemo po srpski");
