@@ -118,6 +118,7 @@ const generateUniqueQRCode = async (ticket, email) => {
       Email: email
     };
     const qrCodeData = await qrcode.toDataURL(JSON.stringify("google.com"));
+    return qrCodeData;
     // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
   } catch (error) {
     console.error("Error generating QR code:", error);
@@ -144,7 +145,7 @@ const userEmail = "user@example.com";
 
 router.route('/ticket/getQrCode').get(async (req, res) => {
   const { mail, museumName } = req.query; // Extract query parameters
- // res.json(generateQRCodesForAllTickets(mail, museumName));
+  res.json(generateQRCodesForAllTickets(mail, museumName));
  console.log(mail,museumName )
 });
 
