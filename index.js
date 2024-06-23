@@ -183,6 +183,42 @@ router.route("/exhibit/add").post(async (req, res) => {
   }
 });
 
+router.route("/exhibit/getall").get(async (req, res) => {
+  try {
+    const exhibits = await methodsEx.getAllExhibits();
+    res.status(200).json(exhibits);
+  } catch (error) {
+    console.log("The error causing the failed fetch: ", error)
+    res.status(500).json({ error: "Failed to fetch exhibits" });
+  }
+});
+
+router.route("/exhibit/update").post(async (req, res) => {
+  try {
+    const { id, updateData } = req.body;
+    console.log('Updating exhibit with ID:', id);
+    console.log('Update data:', updateData);
+    const updatedExhibit = await methodsEx.updateExhibit(id, updateData);
+    res.status(200).json(updatedExhibit);
+  } catch (error) {
+    console.error('Error updating exhibit:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.route("/exhibit/delete").delete(async (req, res) => {
+  try {
+    const { id } = req.body;
+    console.log(id);
+    console.log("Deleting exhibit with ID: ", id)
+    const deletedExhibit = await methodsEx.deleteExhibitById(id);
+    res.status(200).json(deletedExhibit);
+  } catch (error) {
+    console.error('Error deleting exhibit:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
 // ********************* //
