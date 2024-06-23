@@ -160,7 +160,7 @@ variajbla = id
 });
 
 router.route("/exhibit/add").post(async (req, res) => {
-  console.log("kore je rekao da zeli jedan konzol log da dibagujemo po srpski");
+  console.log("ide to lijepo");
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
@@ -172,7 +172,8 @@ router.route("/exhibit/add").post(async (req, res) => {
         exhibitData.exhibitName,
         exhibitData.description,
         exhibitData.images,
-        exhibitData.isDisplayed
+        exhibitData.isDisplayed,
+        exhibitData.toMuseum
       );
       res.status(200).json(exhibit);
     } else {

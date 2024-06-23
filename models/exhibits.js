@@ -18,9 +18,13 @@ const exhibitSchema = new mongoose.Schema({
     isDisplayed: {
         type: Boolean,
         default: true
-    }
+    },
+    toMuseum: {
+        type: String,
+        required: true,
+        enum: ['art', 'science', 'history', 'technology']
+    },
 
 });
-
 const Exhibit = mongoose.model('exhibit', exhibitSchema);
 export default Exhibit;

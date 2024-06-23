@@ -18,13 +18,19 @@ async function createExhibit(
   name,
   description,
   images = [],
-  isDisplayed = true
+  isDisplayed = true,
+  toMuseum
 ) {
+  if (!['art', 'science', 'history', 'technology'].includes(toMuseum)) {
+    throw new Error("Invalid museum type");
+  }
+
   const exhibit = new Exhibit({
     exhibitName: name,
     description: description,
     images: images,
     isDisplayed: isDisplayed,
+    toMuseum: toMuseum
   });
   await exhibit.save();
   return exhibit.toObject();
@@ -35,6 +41,10 @@ async function createExhibit(
 ////////////////////////////
 
 async function updateExhibit(id, updateData) {
+  if (updateData.toMuseum && !['art', 'science', 'history', 'technology'].includes(updateData.toMuseum)) {
+    throw new Error("Invalid museum type");
+  }
+  
   const exhibit = await Exhibit.findByIdAndUpdate(id, updateData, {
     new: true,
   });
