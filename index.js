@@ -9,8 +9,10 @@ import methodsEx from "./handlers/exhibitHandlers.js";
 import User from "./models/users.js";
 import Ticket from "./models/ticket.js";
 import Exhibit from "./models/exhibits.js";
+import qrcode from 'qrcode';
+
 import jwt from "jsonwebtoken";
-import qrcode from "qrcode";
+
 import bodyParser from "body-parser";
 
 const app = express();
@@ -30,6 +32,7 @@ app.use("/api", router);
 // *************************** //
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import QrCode from "./models/qrCodes.js";
 dotenv.config({ path: `./.env` });
 
 mongoose
@@ -97,6 +100,15 @@ router.route("/login").post(async (req, res) => {
   }
 });
 
+router.route("/exhibit/getall").get(async (req, res) => {
+  try {
+    const exhibits = await methodsEx.getAllExhibits();
+    res.status(200).json(exhibits);
+  } catch (error) {
+    console.log("The error causing the failed fetch: ", error)
+    res.status(500).json({ error: "Failed to fetch exhibits" });
+  }
+});
 
 router.route('/ticket/getAllTickets').get(async (req, res) => {
   const tickets = await Ticket.find({});
@@ -105,19 +117,38 @@ router.route('/ticket/getAllTickets').get(async (req, res) => {
 
 
 
+router.route('/usporedi/').get(async (req, res) => {
+  // sa frontenda qrCode
+  const qrCode = req.body;
+if(QrCode.find({url: qrCode}))
+{
+  //naso je
+  res.json(true);
+}
+
+else
+{
+  //nemaaaa
+}
+  
+});
 
 
 
 
-const generateUniqueQRCode = async (ticket, email) => {
+
+
+const generateUniqueQRCode = async (musemName, email) => {
   try {
-    const qrData = {
-      MuseumName: ticket.MuseumName,
-      MuseumDetails: ticket.MuseumDetails,
-      Price: ticket.Price,
-      Email: email
-    };
-    const qrCodeData = await qrcode.toDataURL(JSON.stringify("google.com"));
+  
+    const qrCodeData = await qrcode.toDataURL(JSON.stringify("http://localhost:5173/map/"+ musemName+"/"+email));
+
+
+    const newQrCode = new QrCode({
+      url: qrCodeData
+    });
+    await newQrCode.save();
+
     return qrCodeData;
     // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
   } catch (error) {
@@ -129,7 +160,8 @@ const generateQRCodesForAllTickets = async (email,musemName) => {
   try {
     const tickets = await Ticket.find({});
     for (const ticket of tickets) {
-      await generateUniqueQRCode(ticket, email);
+      if(ticket.MuseumName == musemName)
+      return await generateUniqueQRCode(ticket.MuseumName, email);
     }
   } catch (error) {
     console.error("Error fetching tickets:", error);
@@ -144,9 +176,21 @@ const userEmail = "user@example.com";
 
 
 router.route('/ticket/getQrCode').get(async (req, res) => {
-  const { mail, museumName } = req.query; // Extract query parameters
-  res.json(generateQRCodesForAllTickets(mail, museumName));
- console.log(mail,museumName )
+  try {
+    const { mail, museumName } = req.query;
+console.log(mail, museumName)
+    if (!mail || !museumName) {
+      return res.status(400).json({ error: 'Missing mail or museumName parameter' });
+    }
+
+    // Dummy QR code data
+    const qrCode = await generateQRCodesForAllTickets(mail, museumName)
+
+    res.json(qrCode);
+  } catch (error) {
+    console.error('Failed to fetch QR Code data:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 router.route('/ticket/Scan/:id').get(async (req, res) => {
