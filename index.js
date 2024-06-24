@@ -115,22 +115,37 @@ router.route('/ticket/getAllTickets').get(async (req, res) => {
   res.json(tickets);
 });
 
+router.route('/GetUserName').get(async (req, res) => {
+  const userEmail = req.query.email;
+
+  try {
+    const username = await User.findOne({ email: userEmail });
+    res.json(username);
+  } catch (error) {
+    console.error('Error fetching username:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 
 router.route('/usporedi/').get(async (req, res) => {
-  // sa frontenda qrCode
-  const qrCode = req.body;
-if(QrCode.find({url: qrCode}))
-{
-  //naso je
-  res.json(true);
-}
+  try {
+    const qrCode = req.url.split('/usporedi/?')[1]; 
+    const model = await QrCode.findOne({ url: qrCode });
 
-else
-{
-  //nemaaaa
-}
-  
+    if (model) {
+      // Found
+      res.json(true);
+    } else {
+      // Not found
+      res.json(false);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 
@@ -152,7 +167,8 @@ const generateUniqueQRCode = async (musemName, email) => {
     return qrCodeData;
     // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
   } catch (error) {
-    console.error("Error generating QR code:", error);
+    console.error("unique qrcode");
+    return false;
   }
 };
 
@@ -178,7 +194,6 @@ const userEmail = "user@example.com";
 router.route('/ticket/getQrCode').get(async (req, res) => {
   try {
     const { mail, museumName } = req.query;
-console.log(mail, museumName)
     if (!mail || !museumName) {
       return res.status(400).json({ error: 'Missing mail or museumName parameter' });
     }
@@ -186,7 +201,10 @@ console.log(mail, museumName)
     // Dummy QR code data
     const qrCode = await generateQRCodesForAllTickets(mail, museumName)
 
+    if(qrCode)
     res.json(qrCode);
+  else
+  res.json(false)
   } catch (error) {
     console.error('Failed to fetch QR Code data:', error);
     res.status(500).send('Internal Server Error');
