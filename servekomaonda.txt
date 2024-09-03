@@ -1,0 +1,2 @@
+u slucaju lokalne eksekucije postaviti serve u package.json na>
+"serve": "nodemon --exec babel-node index.js"
