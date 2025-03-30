@@ -211,7 +211,7 @@ variajbla = id
   res.json(generateQRCodesForAllTickets(mail));
 });
 
-router.route("/exhibit").post(async (req, res) => {
+router.route("/exhibit/add").post(async (req, res) => {
   console.log("ide to lijepo");
   try {
     const exhibitData = req.body;
@@ -236,7 +236,7 @@ router.route("/exhibit").post(async (req, res) => {
   }
 });
 
-router.route("/exhibit").get(async (req, res) => {
+router.route("/exhibit/getall").get(async (req, res) => {
   try {
     const exhibits = await methodsEx.getAllExhibits();
     res.status(200).json(exhibits);
@@ -246,20 +246,12 @@ router.route("/exhibit").get(async (req, res) => {
   }
 });
 
-router.route("/exhibit/:id").put(async (req, res) => {
+router.route("/exhibit/update").post(async (req, res) => {
   try {
-    const id = req.params.id;
-    const updateData = req.body;
-
+    const { id, updateData } = req.body;
     console.log('Updating exhibit with ID:', id);
     console.log('Update data:', updateData);
-
     const updatedExhibit = await methodsEx.updateExhibit(id, updateData);
-
-    if (!updatedExhibit) {
-      return res.status(404).json({ error: "Exhibit not found" });
-    }
-
     res.status(200).json(updatedExhibit);
   } catch (error) {
     console.error('Error updating exhibit:', error);
@@ -267,25 +259,18 @@ router.route("/exhibit/:id").put(async (req, res) => {
   }
 });
 
-
-router.route("/exhibit/:id").delete(async (req, res) => {
+router.route("/exhibit/delete").delete(async (req, res) => {
   try {
-    const id = req.params.id;
-    console.log("Deleting exhibit with ID:", id);
-
+    const { id } = req.body;
+    console.log(id);
+    console.log("Deleting exhibit with ID: ", id)
     const deletedExhibit = await methodsEx.deleteExhibitById(id);
-
-    if (!deletedExhibit) {
-      return res.status(404).json({ error: "Exhibit not found" });
-    }
-
     res.status(200).json(deletedExhibit);
   } catch (error) {
-    console.error("Error deleting exhibit:", error);
+    console.error('Error deleting exhibit:', error);
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //

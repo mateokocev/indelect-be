@@ -1,2 +1,9 @@
 u slucaju lokalne eksekucije postaviti serve u package.json na>
 "serve": "nodemon --exec babel-node index.js"
+
+
+useful powershell komande jer sam ljen
+
+netstat -aon | findstr :3030
+Get-Process -Id 10488
+taskkill /PID 10488 /F
