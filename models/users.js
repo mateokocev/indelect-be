@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-
     username: {
         type: String,
         required: true,
@@ -21,8 +20,26 @@ const userSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
-
+    },
+    tickets: [{ 
+        ticket: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'ticket',
+            required: true
+        },
+        qrCodeUrl: {
+            type: String,
+            required: true
+        },
+        purchaseDate: {
+            type: Date,
+            default: Date.now
+        },
+        isUsed: {
+            type: Boolean,
+            default: false
+        }
+    }]
 });
 
 const User = mongoose.model("user", userSchema);

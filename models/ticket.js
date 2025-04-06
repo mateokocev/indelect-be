@@ -5,19 +5,19 @@ const ticketSchema = new mongoose.Schema({
 
     MuseumName:{
         type: String,
-        require:true,
+        required:true,
         unique:true
     },
      
     MuseumDetails:{
         type:String,
-        require:true,
+        required:true,
         unique:true
     },
 
     Price:{
         type: Number,
-        require:true,
+        required:true,
         unique:true
     },
 });

@@ -6,10 +6,10 @@ import express from "express";
 import cors from "cors";
 import methods from "./handlers/userHandlers.js";
 import methodsEx from "./handlers/exhibitHandlers.js";
+import ticketMethods from "./handlers/ticketHandlers.js";
 import User from "./models/users.js";
 import Ticket from "./models/ticket.js";
 import Exhibit from "./models/exhibits.js";
-import qrcode from 'qrcode';
 
 import jwt from "jsonwebtoken";
 
@@ -32,7 +32,6 @@ app.use("/api", router);
 // *************************** //
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import QrCode from "./models/qrCodes.js";
 dotenv.config({ path: `./.env` });
 
 mongoose
@@ -51,8 +50,6 @@ console.log("Loaded .env file with MONGO_URI:", process.env.MONGO_URI);
 // ************************* //
 //   REGISTER I LOGIN RUTE   //
 // ************************* //
-
-
 
 router.route("/register").post(async (req, res) => {
   try {
@@ -100,119 +97,97 @@ router.route("/login").post(async (req, res) => {
   }
 });
 
-router.route('/ticket/getAllTickets').get(async (req, res) => {
-  const tickets = await Ticket.find({});
-  res.json(tickets);
-});
+// ************************* //
+//      USER ROUTES          //
+// ************************* //
 
-router.route('/GetUserName').get(async (req, res) => {
-  const userEmail = req.query.email;
+router.route('/users/:email').get(async (req, res) => {
+  const userEmail = req.params.email;
 
   try {
-    const username = await User.findOne({ email: userEmail });
-    res.json(username);
-  } catch (error) {
-    console.error('Error fetching username:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-
-
-
-router.route('/usporedi/').get(async (req, res) => {
-  try {
-    const qrCode = req.url.split('/usporedi/?')[1]; 
-    const model = await QrCode.findOne({ url: qrCode });
-
-    if (model) {
-      // Found
-      res.json(true);
-    } else {
-      // Not found
-      res.json(false);
+    const user = await User.findOne({ email: userEmail }).populate('tickets.ticket');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+    res.json(user);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 
+// ************************* //
+//   TICKET & QR CODE ROUTES //
+// ************************* //
 
-
-
-
-const generateUniqueQRCode = async (musemName, email) => {
+router.route('/tickets').get(async (req, res) => {
   try {
-  
-    const qrCodeData = await qrcode.toDataURL(JSON.stringify("http://localhost:5173/map/"+ musemName+"/"+email));
+    const tickets = await ticketMethods.getAllTickets();
+    res.json(tickets);
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    res.status(500).json({ error: 'Failed to fetch tickets' });
+  }
+});
 
+router.route('/tickets/:museumName/qrcode').get(async (req, res) => {
+  try {
+    const { museumName } = req.params;
+    const { email } = req.query;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Missing email parameter' });
+    }
+    
+    console.log(`Generating QR code for museum: ${museumName}, email: ${email}`);
+    
+    const qrCodeData = await ticketMethods.generateTicketQRCode(email, museumName);
+    res.json(qrCodeData);
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+    res.status(500).json({ error: error.message || 'Failed to generate QR code' });
+  }
+});
 
-    const newQrCode = new QrCode({
-      url: qrCodeData
+router.route('/tickets/:museumName/qrcode/verify').get(async (req, res) => {
+  try {
+    const { museumName } = req.params;
+    const { code } = req.query;
+    
+    if (!code) {
+      return res.status(400).json({ error: 'Missing code parameter' });
+    }
+    
+    const result = await ticketMethods.verifyAndUseTicket(code, museumName);
+    res.json(result);
+  } catch (error) {
+    console.error('Error verifying QR code:', error);
+    res.status(500).json({ error: 'Failed to verify QR code' });
+  }
+});
+
+router.route('/tickets/:museumName/user/:email').delete(async (req, res) => {
+  try {
+    const { museumName, email } = req.params;
+    
+    const removedTicket = await ticketMethods.deleteTicket(email, museumName);
+    
+    return res.status(200).json({ 
+      message: 'Ticket successfully deleted',
+      ticket: removedTicket
     });
-    await newQrCode.save();
-
-    return qrCodeData;
-    // console.log(`QR Code for ticket ${ticket.MuseumName} and email ${email}:`, qrCodeData);
   } catch (error) {
-    console.error("unique qrcode");
-    return false;
-  }
-};
-
-const generateQRCodesForAllTickets = async (email,musemName) => {
-  try {
-    const tickets = await Ticket.find({});
-    for (const ticket of tickets) {
-      if(ticket.MuseumName == musemName)
-      return await generateUniqueQRCode(ticket.MuseumName, email);
-    }
-  } catch (error) {
-    console.error("Error fetching tickets:", error);
-  }
-};
-
-// Replace with the user's email
-const userEmail = "user@example.com";
-
-// Call the function to fetch tickets and generate unique QR codes
-
-
-
-router.route('/ticket/getQrCode').get(async (req, res) => {
-  try {
-    const { mail, museumName } = req.query;
-    if (!mail || !museumName) {
-      return res.status(400).json({ error: 'Missing mail or museumName parameter' });
-    }
-
-    // Dummy QR code data
-    const qrCode = await generateQRCodesForAllTickets(mail, museumName)
-
-    if(qrCode)
-    res.json(qrCode);
-  else
-  res.json(false)
-  } catch (error) {
-    console.error('Failed to fetch QR Code data:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error deleting ticket:', error);
+    res.status(500).json({ error: error.message || 'Failed to delete ticket' });
   }
 });
 
-router.route('/ticket/Scan/:id').get(async (req, res) => {
-  
-variajbla = id
-// ako postoji id return true
-
-// ako ne postoji id return false
-
-  res.json(generateQRCodesForAllTickets(mail));
-});
+// ************************* //
+//      EXHIBIT ROUTES       //
+// ************************* //
 
 router.route("/exhibit").post(async (req, res) => {
-  console.log("ide to lijepo");
   try {
     const exhibitData = req.body;
     const findExhibit = await Exhibit.findOne({
@@ -229,7 +204,7 @@ router.route("/exhibit").post(async (req, res) => {
       );
       res.status(200).json(exhibit);
     } else {
-      res.status(500).json({ error: "Exhibit exists" });
+      res.status(409).json({ error: "Exhibit already exists" });
     }
   } catch (error) {
     res.status(500).json({ error: "Couldn't add exhibit" });
@@ -267,7 +242,6 @@ router.route("/exhibit/:id").put(async (req, res) => {
   }
 });
 
-
 router.route("/exhibit/:id").delete(async (req, res) => {
   try {
     const id = req.params.id;
@@ -286,6 +260,21 @@ router.route("/exhibit/:id").delete(async (req, res) => {
   }
 });
 
+// ********************* //
+//     MUSEUM ROUTES     //
+// ********************* //
+
+router.route("/museum/:museumName/exhibits").get(async (req, res) => {
+  try {
+    const { museumName } = req.params;
+    console.log('Lebdim')
+    const exhibits = await Exhibit.find({ toMuseum: new RegExp(`^${museumName}$`, 'i') });
+    res.status(200).json(exhibits);
+  } catch (error) {
+    console.error('Error fetching museum exhibits:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // ********************* //
 // OVDJE ZAVRŠAVAJU RUTE //
