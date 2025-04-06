@@ -97,24 +97,7 @@ router.route("/login").post(async (req, res) => {
   }
 });
 
-// ************************* //
-//      USER ROUTES          //
-// ************************* //
 
-router.route('/users/:email').get(async (req, res) => {
-  const userEmail = req.params.email;
-
-  try {
-    const user = await User.findOne({ email: userEmail }).populate('tickets.ticket');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
 
 // ************************* //
@@ -180,6 +163,21 @@ router.route('/tickets/:museumName/user/:email').delete(async (req, res) => {
   } catch (error) {
     console.error('Error deleting ticket:', error);
     res.status(500).json({ error: error.message || 'Failed to delete ticket' });
+  }
+});
+
+router.route('/users/:email').get(async (req, res) => {
+  const userEmail = req.params.email;
+
+  try {
+    const user = await User.findOne({ email: userEmail }).populate('tickets.ticket');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
